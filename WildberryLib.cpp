@@ -1,4 +1,4 @@
-#include <Adafruit_IS31FL3731.h>
+#include <WildberryLib.h>
 
 #ifndef _swap_int16_t
 #define _swap_int16_t(a, b)                                                    \
@@ -17,16 +17,8 @@
 */
 /**************************************************************************/
 
-Adafruit_IS31FL3731::Adafruit_IS31FL3731(uint8_t width, uint8_t height)
+WildberryUI::WildberryUI(uint8_t width, uint8_t height)
     : Adafruit_GFX(width, height) {}
-
-/**************************************************************************/
-/*!
-    @brief Constructor for FeatherWing version (15x7 LEDs)
-*/
-/**************************************************************************/
-Adafruit_IS31FL3731_Wing::Adafruit_IS31FL3731_Wing(void)
-    : Adafruit_IS31FL3731(15, 7) {}
 
 /**************************************************************************/
 /*!
@@ -36,7 +28,7 @@ Adafruit_IS31FL3731_Wing::Adafruit_IS31FL3731_Wing(void)
     @returns True on success, false if chip isnt found
 */
 /**************************************************************************/
-bool Adafruit_IS31FL3731::begin(uint8_t addr, TwoWire *theWire) {
+bool WildberryUI::begin(uint8_t addr, TwoWire *theWire) {
   if (_i2c_dev) {
     delete _i2c_dev;
   }
@@ -81,7 +73,7 @@ bool Adafruit_IS31FL3731::begin(uint8_t addr, TwoWire *theWire) {
     @brief Sets all LEDs on & 0 PWM for current frame.
 */
 /**************************************************************************/
-void Adafruit_IS31FL3731::clear(void) {
+void WildberryUI::clear(void) {
   selectBank(_frame);
   uint8_t erasebuf[25];
 
@@ -102,7 +94,7 @@ void Adafruit_IS31FL3731::clear(void) {
     @param pwm brightnes, from 0 (off) to 255 (max on)
 */
 /**************************************************************************/
-void Adafruit_IS31FL3731::setLEDPWM(uint8_t lednum, uint8_t pwm, uint8_t bank) {
+void WildberryUI::setLEDPWM(uint8_t lednum, uint8_t pwm, uint8_t bank) {
   if (lednum >= 144)
     return;
   writeRegister8(bank, 0x24 + lednum, pwm);
@@ -117,53 +109,7 @@ void Adafruit_IS31FL3731::setLEDPWM(uint8_t lednum, uint8_t pwm, uint8_t bank) {
     @param color Despite being a 16-bit value, takes 0 (off) to 255 (max on)
 */
 /**************************************************************************/
-void Adafruit_IS31FL3731_Wing::drawPixel(int16_t x, int16_t y, uint16_t color) {
-  // check rotation, move pixel around if necessary
-  switch (getRotation()) {
-  case 1:
-    _swap_int16_t(x, y);
-    x = 15 - x - 1;
-    break;
-  case 2:
-    x = 15 - x - 1;
-    y = 7 - y - 1;
-    break;
-  case 3:
-    _swap_int16_t(x, y);
-    y = 9 - y - 1;
-    break;
-  }
-
-  // charlie wing is smaller:
-  if ((x < 0) || (x >= 16) || (y < 0) || (y >= 7))
-    return;
-
-  if (x > 7) {
-    x = 15 - x;
-    y += 8;
-  } else {
-    y = 7 - y;
-  }
-
-  _swap_int16_t(x, y);
-
-  if (color > 255)
-    color = 255; // PWM 8bit max
-
-  setLEDPWM(x + y * 16, color, _frame);
-  return;
-}
-
-/**************************************************************************/
-/*!
-    @brief Adafruit GFX low level accesssor - sets a 8-bit PWM pixel value
-    handles rotation and pixel arrangement, unlike setLEDPWM
-    @param x The x position, starting with 0 for left-most side
-    @param y The y position, starting with 0 for top-most side
-    @param color Despite being a 16-bit value, takes 0 (off) to 255 (max on)
-*/
-/**************************************************************************/
-void Adafruit_IS31FL3731::drawPixel(int16_t x, int16_t y, uint16_t color) {
+void WildberryUI::drawPixel(int16_t x, int16_t y, uint16_t color) {
   // check rotation, move pixel around if necessary
   switch (getRotation()) {
   case 1:
@@ -197,7 +143,7 @@ void Adafruit_IS31FL3731::drawPixel(int16_t x, int16_t y, uint16_t color) {
     @param frame Ranges from 0 - 7 for the 8 frames
 */
 /**************************************************************************/
-void Adafruit_IS31FL3731::setFrame(uint8_t frame) { _frame = frame; }
+void WildberryUI::setFrame(uint8_t frame) { _frame = frame; }
 
 /**************************************************************************/
 /*!
@@ -205,7 +151,7 @@ void Adafruit_IS31FL3731::setFrame(uint8_t frame) { _frame = frame; }
     @param frame Ranges from 0 - 7 for the 8 frames
 */
 /**************************************************************************/
-void Adafruit_IS31FL3731::displayFrame(uint8_t frame) {
+void WildberryUI::displayFrame(uint8_t frame) {
   if (frame > 7)
     frame = 0;
   writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_PICTUREFRAME, frame);
@@ -218,7 +164,7 @@ void Adafruit_IS31FL3731::displayFrame(uint8_t frame) {
     @returns False if I2C command failed to be ack'd
 */
 /**************************************************************************/
-bool Adafruit_IS31FL3731::selectBank(uint8_t bank) {
+bool WildberryUI::selectBank(uint8_t bank) {
   uint8_t cmd[2] = {ISSI_COMMANDREGISTER, bank};
   return _i2c_dev->write(cmd, 2);
 }
@@ -229,7 +175,7 @@ bool Adafruit_IS31FL3731::selectBank(uint8_t bank) {
     @param sync True to enable, False to disable
 */
 /**************************************************************************/
-void Adafruit_IS31FL3731::audioSync(bool sync) {
+void WildberryUI::audioSync(bool sync) {
   if (sync) {
     writeRegister8(ISSI_BANK_FUNCTIONREG, ISSI_REG_AUDIOSYNC, 0x1);
   } else {
@@ -246,7 +192,7 @@ void Adafruit_IS31FL3731::audioSync(bool sync) {
     @returns False if I2C command failed to be ack'd
 */
 /**************************************************************************/
-bool Adafruit_IS31FL3731::writeRegister8(uint8_t bank, uint8_t reg,
+bool WildberryUI::writeRegister8(uint8_t bank, uint8_t reg,
                                          uint8_t data) {
   selectBank(bank);
 
@@ -262,7 +208,7 @@ bool Adafruit_IS31FL3731::writeRegister8(uint8_t bank, uint8_t reg,
     @return 1 byte value
 */
 /**************************************************************************/
-uint8_t Adafruit_IS31FL3731::readRegister8(uint8_t bank, uint8_t reg) {
+uint8_t WildberryUI::readRegister8(uint8_t bank, uint8_t reg) {
   uint8_t val = 0xFF;
 
   selectBank(bank);

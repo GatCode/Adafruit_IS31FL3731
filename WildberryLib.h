@@ -1,5 +1,5 @@
-#ifndef _ADAFRUIT_IS31FL3731_H_
-#define _ADAFRUIT_IS31FL3731_H_
+#ifndef _WILDBERRYLIB_H_
+#define _WILDBERRYLIB_H_
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_I2CDevice.h>
@@ -29,9 +29,9 @@
     @brief Constructor for generic IS31FL3731 breakout version
 */
 /**************************************************************************/
-class Adafruit_IS31FL3731 : public Adafruit_GFX {
+class WildberryUI : public Adafruit_GFX {
 public:
-  Adafruit_IS31FL3731(uint8_t x = 16, uint8_t y = 9);
+  WildberryUI(uint8_t x = 28, uint8_t y = 5);
   bool begin(uint8_t addr = ISSI_ADDR_DEFAULT, TwoWire *theWire = &Wire);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   void clear(void);
@@ -49,17 +49,6 @@ protected:
 
 private:
   Adafruit_I2CDevice *_i2c_dev = NULL;
-};
-
-/**************************************************************************/
-/*!
-    @brief Constructor for FeatherWing IS31FL3731 version
-*/
-/**************************************************************************/
-class Adafruit_IS31FL3731_Wing : public Adafruit_IS31FL3731 {
-public:
-  Adafruit_IS31FL3731_Wing(void);
-  void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
 
 #endif
